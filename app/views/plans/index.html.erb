@@ -1,3 +1,4 @@
+<% if false %>
 <p id="notice"><%= notice %></p>
 
 <h1>Plans</h1>
@@ -27,3 +28,84 @@
 <br>
 
 <%= link_to 'New Plan', new_plan_path %>
+<% end %>
+
+<div class="row">
+    <div class="col-5">
+        <h1>Academic Planning</h1>
+    </div>
+    <div class="col-2">
+        <div class="row">
+            Name: <%= current_user.login %>
+        </div>
+        <div class="row" id="major">
+            Major:
+        </div>
+    </div>
+    <div class="col-2">
+        <div class="row" id="catalogYear">
+            Catalog Year:
+        </div>
+        <div class="row" id="catalogHours">
+            Catalog Hours:
+        </div>
+    </div>
+    <div class="col-2">
+        <label for="plan">Plan</label><br>
+        <select name="plan" id="planSelect" value="" onchange="getCombined(this.value)">
+            
+        </select>
+    </div>
+    <div class="col-1">
+        <img src="/assets/cedarvilleLogo.png" alt="Cedarville University Logo" height="48" width="48" class="align-right"/>
+    </div>
+</div>
+<hr>
+<div class="row">
+    <div class="col-3">
+        <div class="section padding">
+            <div class="row">
+                <div class="col-12 no-padding">
+                    <h3>Courses</h3>
+                </div>
+            </div>
+            <hr>
+            <div class="row">
+                <div id="accordion">
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-9" id="plan">
+        
+    </div>
+</div>
+<div class="row">
+    <div class="col-3">
+        <div class="row">
+            <div id="calculator">
+                <label for="calc_equation">Equation:</label>
+                <br>
+                <input type="text" id="calc_equation">
+                <br>
+                <label for="calc_result">Result:</label>
+                <br>
+                <input type="text" id="calc_result" readonly>
+                <br>
+                <input type="button" id="calc_submit" value="Calculate">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-3"></div>
+            <div class="col-6">
+                <%= button_to "Log Out", destroy_user_session_path, :method => :delete %>
+            </div>
+            <div class="col-3"></div>
+        </div>
+    </div>
+    <div class="col-9">
+        <table id="catalog" class="display compact">
+        </table>
+    </div>
+</div>
