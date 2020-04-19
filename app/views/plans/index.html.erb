@@ -1,35 +1,3 @@
-<% if false %>
-<p id="notice"><%= notice %></p>
-
-<h1>Plans</h1>
-
-<div id="testDiv"></div> 
-
-<table>
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th colspan="3"></th>
-    </tr>
-  </thead>
-
-  <tbody>
-    <% @plans.each do |plan| %>
-      <tr>
-        <td><%= plan.name %></td>
-        <td><%= link_to 'Show', plan %></td>
-        <td><%= link_to 'Edit', edit_plan_path(plan) %></td>
-        <td><%= link_to 'Destroy', plan, method: :delete, data: { confirm: 'Are you sure?' } %></td>
-      </tr>
-    <% end %>
-  </tbody>
-</table>
-
-<br>
-
-<%= link_to 'New Plan', new_plan_path %>
-<% end %>
-
 <div class="row">
     <div class="col-5">
         <h1>Academic Planning</h1>
@@ -52,9 +20,7 @@
     </div>
     <div class="col-2">
         <label for="plan">Plan</label><br>
-        <select name="plan" id="planSelect" value="" onchange="getCombined(this.value)">
-            
-        </select>
+        <select name="plan" id="planSelect" value="" onchange="getCombined(this.value)"></select>
     </div>
     <div class="col-1">
         <img src="/assets/cedarvilleLogo.png" alt="Cedarville University Logo" height="48" width="48" class="align-right"/>
@@ -93,7 +59,13 @@
                 <br>
                 <input type="text" id="calc_result" readonly>
                 <br>
-                <input type="button" id="calc_submit" value="Calculate">
+                <input type="button" id="calc_submit" value="Calculate" onclick="calculate();">
+                <script>
+                    function calculate(){
+                        var string = document.getElementById("calc_equation").value;
+                        document.getElementById("calc_result").value = eval(string)
+                    }
+                </script>
             </div>
         </div>
         <div class="row">

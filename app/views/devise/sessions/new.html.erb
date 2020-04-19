@@ -24,6 +24,7 @@
                     <% if flash.alert %>
                         <%= flash.alert %>
                     <% end %>
+                    <%= render "devise/shared/links" %>
                 </div>
             </div>
             <div class="row">
@@ -36,7 +37,4 @@
         <% end %>
     </div>
     <div class="col-3"></div>
-</div>
-<div class="row">
-    <%= render "devise/shared/links" %>
 </div>

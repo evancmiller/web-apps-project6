@@ -124,31 +124,32 @@ function updatePlan(){
     $("#catalogHours").html("Catalog Hours: " + totalCredits);
 }
 
-function generateAccordion(){
-    /*
-    $.getJSON("/~gallaghd/cs3220/termProject/getRequirements.php", function(data){
+function generateAccordion(planId){
+    $.getJSON("plans/" + planId + ".json", function(data){
+        if($("#accordion").accordion("instance") !== undefined){
+            $("#accordion").accordion("destroy");
+        }
+        $("#accordion").empty();
         $.each(data.categories, function(idx, val){
-            let html = "<h3>" + idx + "</h3><div>";
+            let html = "<h3>" + val.name + "</h3><div>";
             $.each(val.courses, function(idx, val){
-                let name = getCourseById(val).name;
-                html += "<div class='slight-padding'>" + val + " " + name + "</div>";
+                let name = getCourseById(val.id).name;
+                html += "<div class='slight-padding'>" + val.id + " " + name + "</div>";
             });
             $("#accordion").append(html + "</div>");
         });
         $("#accordion").accordion();
     });
-    */
 }
 
-function getCombined(planId){
+window.getCombined = function(planId){
     if($.fn.DataTable.isDataTable("#catalog")){
         datatable.destroy();
     }
     $("#catalog").html("<thead><tr><th>ID</th><th>Name</th><th>Description</th><th>Credits</th></tr></thead><tbody id='catalogBody'></tbody>");
     datatable = $("#catalog").DataTable();
 
-    /*
-    $.getJSON("/~miller/TermProject/getCombined.php", {id: planId}, function(data){
+    $.getJSON("plans/" + planId + ".json", function(data){
         plan = new Plan(data.plan.name, data.plan.major, data.plan.student, data.plan.catYear);
         // Add courses to catalog
         $.each(data.catalog.courses, function(idx, val){
@@ -169,14 +170,23 @@ function getCombined(planId){
             semester.courses.push(course);
         });
         updatePlan();
-        generateAccordion();
+        generateAccordion(planId);
     });
-    */
 }
+
+$(document).ready(function(){
+    // If the plan select box exists, we're on the main page, so populate it and list the courses
+    if($("#planSelect").length){
+        $.getJSON("plans/1.json", function(data){
+            let html = "";
+            $.each(data.planList.plans, function(idx, val){
+                html += "<option value='" + val.id + "'>" + val.name + "</option>";
+            });
+            $("#planSelect").html(html);
+            getCombined($("#planSelect > option").val());
+        });
+    }
+});
 
 var plan = null;
 var datatable = null;
-
-if($("#planSelect").children().length != 0){
-    getCombined($("#planSelect > option").val());
-}

@@ -77,11 +77,11 @@ body{
 }
 
 a:link{
-    color: #66fcf1;
+    color: #66fcf1 !important;
 }
 
 a:visited{
-    color: #45a29e;
+    color: #45a29e !important;
 }
 
 a:hover > div{
@@ -138,7 +138,7 @@ input.login{
     width: 100%
 }
 
-input:focus, select:focus{
+input:focus, select:focus, .ui-accordion-header:focus{
     outline: none;
 }
 
@@ -180,5 +180,12 @@ input[type="submit"]:hover, input[type="button"]:hover{
 
 #calculator {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
+}
+
+.ui-accordion-header{
+    background-color: #141a21;
+    border-color: #1f2833;
+    border-style: solid;
+    border-radius: 6px;
 }
