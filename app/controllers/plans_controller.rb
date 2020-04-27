@@ -1,5 +1,5 @@
 class PlansController < ApplicationController
-  before_action :set_plan, only: [:show, :edit, :update, :destroy]
+  before_action :set_plan, only: [:show, :edit, :update, :destroy, :add]
   before_action :authenticate_user!
   # GET /plans
   # GET /plans.json
@@ -52,6 +52,29 @@ class PlansController < ApplicationController
       end
     end
   end
+  
+  def add_course
+    @courses = Course.all
+    courseModel = @courses.where(designator: params[:course]).first
+	planCourse = PlanCourse.new
+	planCourse.plan_id = params[:id]
+	planCourse.course_id = courseModel.id
+	planCourse.term = params[:term]
+	planCourse.year = params[:year]
+	planCourse.save
+	
+	p "Term: " + params[:term] + " Year: " + params[:year];
+  end
+  
+  def remove_course
+    @courses = Course.all
+    courseModel = @courses.where(designator: params[:course]).first
+	planCourse = PlanCourse.where(plan_id: params[:id], course_id: courseModel.id, term: params[:term], year: params[:year]).first
+	PlanCourse.delete(planCourse.id)
+	
+	p "Class: " + params[:course];
+  end
+  
 
   # DELETE /plans/1
   # DELETE /plans/1.json

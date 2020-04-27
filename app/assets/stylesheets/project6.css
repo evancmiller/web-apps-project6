@@ -183,6 +183,44 @@ input[type="submit"]:hover, input[type="button"]:hover{
     flex-direction: column;
 }
 
+.course_name {
+    display: flex;
+    flex-direction: row;
+}
+
+.course_delete {
+    margin-left: auto;
+	max-width: wrap-content;
+	max-height: wrap-content;
+	align-self: center;
+	display: inline-block;
+	color: red;
+	
+	background-color: Transparent;
+    background-repeat:no-repeat;
+    border: none;
+    cursor:pointer;
+    overflow: hidden;
+    outline:none;
+}
+
+.course_check {
+	margin-left: 5px;
+    margin-right: 10px;
+}
+
+.course_check_x {
+	margin-left: 5px;
+    margin-right: 10px;
+	color:red
+}
+
+.course_check_c {
+	margin-left: 5px;
+    margin-right: 10px;
+	color:green
+}
+
 .ui-accordion-header{
     background-color: #141a21;
     border-color: #1f2833;

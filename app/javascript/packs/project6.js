@@ -1,6 +1,7 @@
 class Plan{
-    constructor(planName, major, studentName, year){
-        this.planName = planName;
+    constructor(id, planName, major, studentName, year){
+        this.id = id;
+		this.planName = planName;
         this.years = [];
         this.major = major;
         this.studentName = studentName;
@@ -86,42 +87,103 @@ function hasYear(yearName){
 }
 
 function updatePlan(){
-    var html = "";
     let totalCredits = 0;
 
+	$("#plan").html("");
     // Generate a row for each year
+	var planDiv = document.createElement('div');
     for (year of plan.years){
-        html += "<div class='row year'>";
-
-        // Generate a semester div for each semester
-        for (semester of year.semesters){
-            let yearName = semester.year.name;
+		var yearDiv = document.createElement('div');
+		yearDiv.className = 'row year';
+        
+		for (semester of year.semesters){
+			var semesterDiv = document.createElement('div');
+			semesterDiv.className = 'section semester';
+			
+			let yearName = semester.year.name;
             if(semester.name !== "Fall"){
                 yearName++;
             }
-            html += "<div class='section semester'><div class='row'>" + 
+			
+			semesterDiv.innerHTML = "<div class='row'>" + 
                     "<div class='col-6 no-padding'><h4>" + semester.name + " " +
                     yearName + "</h4></div>" + 
                     "<div class='col-6 align-right no-padding'>Credits: " +
-                    getCredits(semester) + "</div></div><hr>" +
-                    "<div class='dropArea' id='" + semester.name + yearName +
-                    "' ondrop='drop(event)' ondragover='allowDrop(event)'>";
-            totalCredits += getCredits(semester);
-
-            // List the courses for each semester
-            for (course of semester.courses){
-                html += "<div id='" + course.designator +
-                        "' class='slight-padding' draggable='true' ondragstart='drag(event)'>" +
-                        course.designator + " " + course.name + "</div>";
+                    getCredits(semester) + "</div></div><hr>";
+			let term = semester.name;	
+			let year = yearName;
+					
+			for (course of semester.courses){
+                var divCourse = document.createElement('div');
+				divCourse.id = course.designator;
+				divCourse.className = 'slight-padding';
+				divCourse.className += ' course_name';
+                let name = course.name;
+				
+				let designator = course.designator;
+				
+				var divCourseName = document.createElement('div');
+				divCourseName.innerHTML = designator + " " + name;
+				
+				var divCourseX = document.createElement('button');
+				divCourseX.innerHTML = "X";
+				divCourseX.className = "course_delete";
+				$(divCourseX).click(function(){
+						$.ajax({
+							type: "POST",
+							url: '/plans/remove_course',
+							data: { "id": plan.id, "course": designator, "term": term, "year": year}
+						}).done(function( msg )
+						{
+							reloadCurrentPlan();
+						});
+				});
+				
+				divCourse.appendChild(divCourseName);
+				divCourse.appendChild(divCourseX);
+				semesterDiv.appendChild(divCourse);
             }
-            html += "</div></div>";
-        }
-        html += "</div>";
+			$(semesterDiv).droppable({
+			  drop: function( event, ui ) {
+				var id = ui.draggable.attr("id");			
+				
+				console.log(term);
+				
+				$.ajax({
+					type: "POST",
+					url: '/plans/add_course',
+					data: { "id": plan.id, "course": id, "term": term, "year": year}
+				}).done(function( msg )
+				{
+					reloadCurrentPlan();
+				});
+			  }
+			});		
+					
+			yearDiv.appendChild(semesterDiv);
+			totalCredits += getCredits(semester);
+		}
+		
+		planDiv.appendChild(yearDiv);
     }
-    $("#plan").html(html);
+	$("#plan").append(planDiv);
+	
     $("#major").html("Major: " + plan.major);
     $("#catalogYear").html("Catalog Year: " + plan.catalogYear);
     $("#catalogHours").html("Catalog Hours: " + totalCredits);
+}
+
+function doesPlanHaveCourse(desig){
+	for (year of plan.years){
+		for (semester of year.semesters){
+			for (course of semester.courses){
+				if(course.designator == desig){
+					return true;
+				}
+			}
+		}
+	}
+	return false;
 }
 
 function generateAccordion(planId){
@@ -131,16 +193,119 @@ function generateAccordion(planId){
         }
         $("#accordion").empty();
         $.each(data.categories, function(idx, val){
-            let html = "<h3>" + val.name + "</h3><div>";
-            $.each(val.courses, function(idx, val){
+            var div = document.createElement('div');
+			div.innerHTML = "<h3>" + val.name + "</h3>";
+			
+			var divCourses = document.createElement('div');		
+			$.each(val.courses, function(idx, val){
+				var divCourse = document.createElement('div');
+				
+				divCourse.className = 'slight-padding';
+				divCourse.className += ' course_name';
+				
+				var divCourseCheck = document.createElement('div');
+				var inPlan = doesPlanHaveCourse(val.id);
+				
+				if(inPlan){
+					divCourseCheck.className = 'course_check_c';
+					divCourseCheck.innerHTML = "✓";
+				}
+				else{
+					divCourseCheck.className = 'course_check_x';
+					divCourseCheck.innerHTML = "X";
+				}
+				
+				var divCourseName = document.createElement('div');
                 let name = getCourseById(val.id).name;
-                html += "<div class='slight-padding'>" + val.id + " " + name + "</div>";
+				divCourseName.innerHTML = val.id + " " + name;
+				divCourseName.id = val.id;
+				$(divCourseName).draggable({ revert: "invalid", helper: "clone"  });
+				
+				divCourse.appendChild(divCourseCheck);
+				divCourse.appendChild(divCourseName);
+				
+				divCourses.appendChild(divCourse);
             });
-            $("#accordion").append(html + "</div>");
+			
+			div.appendChild(divCourses);
+			$("#accordion").append(div);
         });
         $("#accordion").accordion();
+		
     });
 }
+
+function reloadCurrentPlan(){
+	$.getJSON("plans/" + plan.id + ".json", function(data){
+        plan = new Plan(plan.id, data.plan.name, data.plan.major, data.plan.student, data.plan.catYear);
+        // Add courses to catalog
+        $.each(data.catalog.courses, function(idx, val){
+            $("#catalog").DataTable().row.add([val.id, val.name, val.description, val.credits]).draw(false);
+            plan.courses.push(new Course(val.name, val.id, val.description, val.credits));
+        });
+        // Add years, semesters, and courses to plan
+        $.each(data.plan.courses, function(idx, val){
+            let year = val.year;
+            if(!val.term.includes("Fall")){
+                year -= 1;
+            }
+            if(!hasYear(year)){
+                plan.years.push(new Year(year));
+            }
+            let semester = getSemester(val.term, year);
+            let course = getCourseById(val.id);
+            semester.courses.push(course);
+        });
+        updatePlan();
+		
+		if($("#accordion").accordion("instance") !== undefined){
+            $("#accordion").accordion("destroy");
+        }
+        $("#accordion").empty();
+        $.each(data.categories, function(idx, val){
+            var div = document.createElement('div');
+			div.innerHTML = "<h3>" + val.name + "</h3>";
+			
+			var divCourses = document.createElement('div');		
+			$.each(val.courses, function(idx, val){
+				var divCourse = document.createElement('div');
+				
+				divCourse.className = 'slight-padding';
+				divCourse.className += ' course_name';
+				
+				var divCourseCheck = document.createElement('div');
+				var inPlan = doesPlanHaveCourse(val.id);
+				
+				if(inPlan){
+					divCourseCheck.className = 'course_check_c';
+					divCourseCheck.innerHTML = "✓";
+				}
+				else{
+					divCourseCheck.className = 'course_check_x';
+					divCourseCheck.innerHTML = "X";
+				}
+				
+				var divCourseName = document.createElement('div');
+                let name = getCourseById(val.id).name;
+				divCourseName.innerHTML = val.id + " " + name;
+				divCourseName.id = val.id;
+				$(divCourseName).draggable({ revert: "invalid", helper: "clone"  });
+				
+				divCourse.appendChild(divCourseCheck);
+				divCourse.appendChild(divCourseName);
+				
+				divCourses.appendChild(divCourse);
+            });
+			
+			div.appendChild(divCourses);
+			$("#accordion").append(div);
+        });
+        $("#accordion").accordion();
+		
+    });
+    
+}
+
 
 window.getCombined = function(planId){
     if($.fn.DataTable.isDataTable("#catalog")){
@@ -150,7 +315,7 @@ window.getCombined = function(planId){
     datatable = $("#catalog").DataTable();
 
     $.getJSON("plans/" + planId + ".json", function(data){
-        plan = new Plan(data.plan.name, data.plan.major, data.plan.student, data.plan.catYear);
+        plan = new Plan(planId, data.plan.name, data.plan.major, data.plan.student, data.plan.catYear);
         // Add courses to catalog
         $.each(data.catalog.courses, function(idx, val){
             $("#catalog").DataTable().row.add([val.id, val.name, val.description, val.credits]).draw(false);
