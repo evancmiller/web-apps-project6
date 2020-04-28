@@ -183,6 +183,12 @@ input[type="submit"]:hover, input[type="button"]:hover{
     flex-direction: column;
 }
 
+#editPlans {
+	width: 140px;
+    min-width: wrap-content;
+	margin-top: 5px;
+}
+
 .course_name {
     display: flex;
     flex-direction: row;
@@ -219,6 +225,67 @@ input[type="submit"]:hover, input[type="button"]:hover{
 	margin-left: 5px;
     margin-right: 10px;
 	color:green
+}
+
+.ui-dialog{
+    border-color: #1f2833;
+    border-style: solid;
+    border-radius: 6px;
+	background-color: #141a21;
+}
+
+.ui-dialog td{
+	text-align: center;
+}
+
+.ui-dialog-titlebar {
+    display: flex;
+    flex-direction: row;
+}
+
+.ui-dialog-title {
+    color: #66fcf1;
+	margin-left: 5px;
+	font-weight: bold;
+}
+
+.ui-dialog-titlebar-close {
+    margin-left: auto;
+	max-width: wrap-content;
+	max-height: wrap-content;
+	align-self: center;
+	display: inline-block;
+	color: red;
+	
+	background-color: Transparent;
+    background-repeat:no-repeat;
+    border: none;
+    cursor:pointer;
+    overflow: hidden;
+    outline:none;
+}
+
+.plan_copy {
+    margin-left: auto;
+	max-width: wrap-content;
+	max-height: wrap-content;
+	align-self: center;
+	display: inline-block;
+	color: green;
+	
+	background-color: Transparent;
+    background-repeat:no-repeat;
+    border: none;
+    cursor:pointer;
+    overflow: hidden;
+    outline:none;
+}
+
+#add_plan {
+	align-self: left;
+	max-width: 200px;
+	margin-left: 5px;
+	margin-bottom: 5px;
 }
 
 .ui-accordion-header{

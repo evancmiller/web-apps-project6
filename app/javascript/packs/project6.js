@@ -306,6 +306,159 @@ function reloadCurrentPlan(){
     
 }
 
+function editPlans(){
+	$("#editPlan_dialog").dialog({
+	  autoOpen: false,
+	  draggable: false,
+	  closeText: "X",
+	  width: "50%",
+      show: {
+        effect: "blind",
+        duration: 1000
+      },
+      hide: {
+        effect: "blind",
+        duration: 1000
+      }
+    });
+	
+	$( "#editPlans" ).click(function() {
+      $( "#editPlan_dialog" ).dialog( "open" );
+    });
+}
+
+function addPlans(){
+	$("#addPlan_dialog").dialog({
+	  autoOpen: false,
+	  draggable: false,
+	  closeText: "X",
+	  width: "30%",
+      show: {
+        effect: "blind",
+        duration: 1000
+      },
+      hide: {
+        effect: "blind",
+        duration: 1000
+      },
+	  buttons: {
+        "Add Plan": submitPlan,
+        Cancel: function() {
+          $("#addPlan_dialog").dialog( "close" );
+        }
+      },
+      close: function() {
+        //allFields.removeClass( "ui-state-error" );
+      }
+    });
+	
+	$.ajax({
+		type: "GET",
+		cache: false,
+		url: '/get_majors'
+	}).done(function( msg )
+	{
+		var html ="";
+		$.each(msg.majors, function(idx, val){
+			html += "<option value='" + val.id + "'>" + val.name + "</option>";
+		});
+		$("#form_major").html(html);
+		
+		html ="";
+		$.each(msg.catalogs, function(idx, val){
+			html += "<option value='" + val.id + "'>" + val.year + "</option>";
+		});
+		$("#form_catalog").html(html);
+	});
+	
+	$( "#add_plan" ).click(function() {
+      $( "#addPlan_dialog" ).dialog( "open" );
+    });
+}
+
+function submitPlan(){
+	var valid = true;
+	
+	if(valid && $("#form_name").val().length == 0){
+		valid = false;
+	} 
+	
+	if(valid && $("#form_major").val() == ""){
+		valid = false;
+	} 
+	
+	if(valid && $("#form_catalog").val() == ""){
+		valid = false;
+	} 
+	
+	if(valid){
+		let name = $("#form_name").val();
+		var majorSelection = document.getElementById("form_major");
+		var major = majorSelection[majorSelection.selectedIndex].value;
+		console.log(major);
+		let catalog = $("#form_catalog").val();
+		$.ajax({
+			type: "POST",
+			url: '/addplan',
+			data: { "name": name, "major": major, "catalog": catalog}
+		}).done(function( msg )
+		{
+			$("#addPlan_dialog").dialog( "close" );
+			reloadEditList();
+		});
+	}
+	
+	return valid;
+}
+
+function reloadEditList(){
+	$.getJSON("plans/1.json", function(data){
+		buildEditList(data.planList.plans);
+	});
+}
+
+function buildEditList(data){
+	var table = document.getElementById("plan_list");
+	for(var i = 1;i<table.rows.length;){
+		table.deleteRow(i);
+	}
+	//$("#plan_list tbody tr").remove(); //Clear data for update
+	$.each(data, function(idx, val){
+		var planId = val.id;
+		var row = table.insertRow(-1);
+		$.getJSON("plans/" + planId + ".json", function(data){
+			var cellName = row.insertCell(-1);
+			cellName.innerHTML = data.plan.name;
+			var cellMajor = row.insertCell(-1);
+			cellMajor.innerHTML = data.plan.major;
+			var cellCatalog = row.insertCell(-1);
+			cellCatalog.innerHTML = data.plan.catYear;
+			
+			var cellCopy = row.insertCell(-1);
+			var copyButton = document.createElement("button");
+			copyButton.innerHTML = "Copy";
+			copyButton.className = "plan_copy";
+			cellCopy.appendChild(copyButton);
+			
+			var cellDelete = row.insertCell(-1);
+			var deleteButton = document.createElement("button");
+			deleteButton.innerHTML = "X";
+			deleteButton.className = "course_delete";
+			$(deleteButton).click(function(){
+					$.ajax({
+						type: "POST",
+						url: '/plans/remove_plan',
+						data: { "id": planId, "plan_id": planId}
+					}).done(function( msg )
+					{
+						reloadEditList();
+					});
+			});
+			
+			cellDelete.appendChild(deleteButton);
+		});
+	});
+}
 
 window.getCombined = function(planId){
     if($.fn.DataTable.isDataTable("#catalog")){
@@ -349,8 +502,13 @@ $(document).ready(function(){
             });
             $("#planSelect").html(html);
             getCombined($("#planSelect > option").val());
+			buildEditList(data.planList.plans);
         });
     }
+	
+	document.getElementById("editPlans").addEventListener("click", editPlans());
+	
+	document.getElementById("add_plan").addEventListener("click", addPlans());
 });
 
 var plan = null;

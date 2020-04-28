@@ -75,6 +75,20 @@ class PlansController < ApplicationController
 	p "Class: " + params[:course];
   end
   
+  def remove_plan
+	plan_id = params[:id];
+	planCourse = PlanCourse.where(plan_id: plan_id)
+	
+	planCourse.each do |course|
+		course.delete
+	end
+	
+	plan = Plan.where(id: plan_id).first
+	plan.delete
+	
+	p plan
+  end
+  
 
   # DELETE /plans/1
   # DELETE /plans/1.json

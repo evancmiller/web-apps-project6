@@ -21,6 +21,7 @@
     <div class="col-2">
         <label for="plan">Plan</label><br>
         <select name="plan" id="planSelect" value="" onchange="getCombined(this.value)"></select>
+		<input type="button" id="editPlans" value="Edit Plans">
     </div>
     <div class="col-1">
         <img src="/assets/cedarvilleLogo.png" alt="Cedarville University Logo" height="48" width="48" class="align-right"/>
@@ -46,6 +47,37 @@
     <div class="col-9" id="plan">
         
     </div>
+	
+	<div id="editPlan_dialog" title="Edit Plans">
+		<hr>
+		<table id="plan_list" style="width:100%">
+			  <tr>
+				<th>Plan</th>
+				<th>Major</th>
+				<th>Catalog</th>
+				<th></th>
+				<th></th>
+			  </tr>
+		</table>
+		<hr>
+		<input type="button" id="add_plan" value="Add Plan">
+	</div>
+	
+	<div id="addPlan_dialog" title="Create Plan">
+		<form id="addPlan_form">
+			<fieldset>
+			  <label for="form_name">Name</label>
+			  <input type="text" name="plan_name" id="form_name" class="text ui-widget-content ui-corner-all">
+			  <label for="form_major">Major</label><br>
+			  <select name="major" id="form_major" value="">
+			  </select>
+			  <label for="form_catalog">Catalog</label><br>
+			  <select name="catalog" id="form_catalog" value=""></select>
+			</fieldset>
+		</form>
+	</div>
+	
+	
 </div>
 <div class="row">
     <div class="col-3">
